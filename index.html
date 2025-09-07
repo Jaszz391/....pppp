@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI By Jaszz</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      background: url("https://files.catbox.moe/ctpfd0.mp4") no-repeat center center/cover;
+    }
+    .chat-box {
+      width: 400px;
+      height: 600px;
+      background: rgba(0,0,30,0.8);
+      border-radius: 20px;
+      box-shadow: 0 0 20px #00f, 0 0 40px #f0f;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      color: #fff;
+    }
+    .msg {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .user { background: linear-gradient(45deg,#00f,#0ff); align-self: flex-end; }
+    .ai { background: linear-gradient(45deg,#f0f,#90f); align-self: flex-start; }
+    .input-box {
+      display: flex;
+      border-top: 1px solid #555;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      outline: none;
+      background: #111;
+      color: #fff;
+    }
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: cyan;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-box">
+    <div id="messages" class="messages"></div>
+    <div class="input-box">
+      <input id="userInput" type="text" placeholder="Tulis pesan...">
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const messages = document.getElementById("messages");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const userMsg = document.createElement("div");
+      userMsg.className = "msg user";
+      userMsg.textContent = text;
+      messages.appendChild(userMsg);
+      messages.scrollTop = messages.scrollHeight;
+      input.value = "";
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+
+        const aiMsg = document.createElement("div");
+        aiMsg.className = "msg ai";
+        aiMsg.textContent = data.reply || "⚠️ Error";
+        messages.appendChild(aiMsg);
+        messages.scrollTop = messages.scrollHeight;
+      } catch (err) {
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "msg ai";
+        errorMsg.textContent = "❌ Server error!";
+        messages.appendChild(errorMsg);
+      }
+    }
+  </script>
+</body>
+</html>
